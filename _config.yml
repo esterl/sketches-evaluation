@@ -1,0 +1,6 @@
+# Site settings
+name: Sketches evaluation
+baseurl: /sketches-evaluation
+
+# Build settings
+markdown: kramdown
