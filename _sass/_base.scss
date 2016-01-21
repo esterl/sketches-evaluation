@@ -43,9 +43,10 @@ ul, ol, dl, figure,
 img {
     max-width: 100%;
     vertical-align: middle;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
 }
-
-
 
 /**
  * Figures
@@ -58,7 +59,19 @@ figcaption {
     font-size: $small-font-size;
 }
 
+/**
+ * Tables
+ */
+table{
+    margin-left:auto; 
+    margin-right:auto;
+    font-size: 80%;
+    margin-bottom: 10px;
+}
 
+td{
+    padding: 0 15px 0 15px;
+}
 
 /**
  * Lists
