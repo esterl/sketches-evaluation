@@ -1,5 +1,6 @@
 ---
 layout: page
+exclude: true
 previous: /reports/estimating-total
 next: random.html
 title: Digest size
@@ -9,7 +10,7 @@ On these experiments, we will study the effect of choosing digests of different 
 
 {% highlight bash %}
 # Point to your pcap
-pcap=pcaps/equinix-chicago.dirB.20130529-135900.UTC.anon.pcap 
+pcap=../pcaps/equinix-chicago.dirB.20130529-135900.UTC.anon.pcap 
 for ID in {1..100}
 do
   python basic_estimation.py digest1.$ID $pcap --rows ROWS --columns COLUMNS \

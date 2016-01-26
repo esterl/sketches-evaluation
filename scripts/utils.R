@@ -1,3 +1,75 @@
+#' Computes the PMF of estimating a proportion using non fixed-size sample
+#'
+#' Returns a data.frame with the PMF of estimating the porportion of dropped 
+#' packets using sampling.
+#' @param packets The total number of packets
+#' @param sampling_probability The probability of sampling a packet
+#' @param drop_probability The probability of dropping a packet
+#' @return A data.frame with the PMF
+get_subsampling_pmf <- function(packets, sampling_probability, drop_probability) {
+  # Matrix with the probability of seeing j drops given i sampled)
+  d_probability = sapply(0:packets, dbinom, 0:packets, drop_probability)
+  # Row with the probability of sampling s
+  s_probability = dbinom(0:packets, packets, sampling_probability)
+  # Transform to matrix
+  s_probability = matrix(rep(s_probability, each=packets+1), ncol=packets+1, byrow=T)
+  t_probability = d_probability * s_probability
+  support = (1/0:packets) %*% t(0:packets)
+  support[1,1] = 0
+  support[support>1] = 0
+  # Get unique support:
+  support_char = unique(as.character(support))
+  probability = sapply(support_char, function(x) sum(t_probability[as.character(support)==x]))
+  # Keep only those that are not 0
+  df = data.frame(EstimatedProbability=as.numeric(support_char[probability!=0]), 
+                  Probability=probability[probability!=0])
+  return(df)
+}
+
+#' Computes the experimental bounds of the absolute error
+#'
+#' Returns a data.frame with the requested percentile, grouping the samples by
+#' the given variables. 
+#' @param df data.frame with the experiment samples
+#' @param ... variables for which to group the results
+#' @param percentile The percentile we are looking for
+#' @param var The variable for which we are looking the percentile
+#' @return A data.frame with the requested percentile and standard error
+get_experimental_percentiles <- function(df, ..., percentile=0.99, var="Error"){
+  var1 = as.name(var)
+  percentiles.exp <- df %>% group_by_(...) %>% 
+    summarize_(
+      SE = interp(~sd(var), var=var1),
+      Percentile = interp(~quantile(abs(var), percentile), var=var1)
+    )
+  percentiles.exp$Method = 'Experimental'
+  return(percentiles.exp)
+}
+
+#' Computes the theoric bounds of the absolute error when using a binomial
+#'
+#' Returns a data.frame with the requested percentile using a binomial variable
+#' to estimate those values. The binomial variable is characterized using the
+#' values from the data.frame.
+#' @param df data.frame with the experiment samples
+#' @param percentile The percentile we are looking for
+#' @return A data.frame with the requested percentile and standard error
+get_binomial_percentiles <- function(df, percentile=0.99){
+  packets = sort(unique(df$ProcessedPackets))
+  probability = sort(unique(df$SamplingProbability))
+  p = (1 - percentile)/2
+  q = 1 - p
+  error = pmax(abs(qbinom(q, packets, probability)/probability - packets), 
+                  abs(qbinom(p, packets, probability)/probability - packets))
+  percentiles = data.frame(SamplingProbability = probability, 
+                            ProcessedPackets = packets,
+                            Percentile = error,
+                            Method = "Binomial distribution")
+  percentiles = bind_rows(df, percentiles)
+  percentiles$Method = factor(percentiles$Method)
+  return(percentiles)
+}
+
 #' Find the histogram breaks for a dataframe with an Error column
 #'
 #' Returns a list with the proposed breaks, one for each sketch type, and with 
