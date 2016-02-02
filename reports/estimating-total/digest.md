@@ -1,7 +1,8 @@
 ---
-layout: page
+layout: serie
 exclude: true
-previous: /reports/estimating-total
+start: ../estimating-total
+previous: ../estimating-total
 next: random.html
 title: Digest size
 ---
@@ -13,7 +14,7 @@ On these experiments, we will study the effect of choosing digests of different 
 pcap=../pcaps/equinix-chicago.dirB.20130529-135900.UTC.anon.pcap 
 for ID in {1..100}
 do
-  python basic_estimation.py digest1.$ID $pcap --rows ROWS --columns COLUMNS \
+  python estimate-total.py digest1.$ID $pcap --rows ROWS --columns COLUMNS \
     --hashFunction default --xiFunction default --numPackets PACKETS \
     --maxIter 100 --averageFunction default
 done
@@ -44,7 +45,7 @@ Our first experiment considers basic sketches (just 1 row) of 256 counters and n
 
 ### More packets
 
-So what happens if we have a sketch with many more packets? That is what our next experiment tried to see next, when we considered 10000 packets.
+So what happens if we have a sketch with many more packets? That is what our next experiment tried to study by considering 10000 packets.
 
 ![](figures/digest2.png)
 

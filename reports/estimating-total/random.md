@@ -1,6 +1,7 @@
 ---
-layout: page
+layout: serie
 exclude: true
+start: ../estimating-total
 previous: digest.html
 next: packets.html
 title: Pseudo-random functions
@@ -13,7 +14,7 @@ The goal of the following experiments is to study the effect of the different im
 pcap=../pcaps/equinix-chicago.dirB.20130529-135900.UTC.anon.pcap 
 for ID in {1..100}
 do
-  python basic_estimation.py random.$ID $pcap --rows ROWS --columns COLUMNS \
+  python estimate-total.py random.$ID $pcap --rows ROWS --columns COLUMNS \
     --digestSize DIGESTSIZE --numPackets PACKETS --maxIter 100 \
     --averageFunction default
 done
@@ -62,7 +63,7 @@ But will the pseudo-random functions still perform ok when we sketch more packet
 
 ### Several rows
 
-However, if we use a sketch with several rows, as in the following experiment, now, the hash function for the FastCount sketch is relevant, as we can see in the figures below. If we use CW2 instead of CW4, the error between the different rows will be correlated, and our prediction will not be as good as expected.
+Our last experiment, made sure that even in the case of several rows, every implementation provides the same guarantees.
 
 ![](figures/xi3.png)
 ![](figures/hash3.png)
@@ -80,4 +81,4 @@ However, if we use a sketch with several rows, as in the following experiment, n
 
 ### Conclusion
 
-Regarding the implementation of the different Xi functions, every one of them seems to provide the same accuracy, so the decision between one or another can be taken based on the CPU or memory requirements of each implementation. On the other hand, regarding the different hash functions, in the case of the FastCount sketch, we have seen that if it has more than one row, we require a 4-wise independent hash function, i.e. either CW4 or Tabulated hashing.
+In every experiment we have done, there was no significant difference between the different implementations for both the Xi and hash functions. This implies that for the case of traffic validation, 4-wise independence is not needed, and weaker functions (such as eh3, bch3 and cw2) can be used instead. These weaker functions have the benefit of being faster and requiring less memory.

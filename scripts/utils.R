@@ -87,7 +87,7 @@ get_breaks <- function(df, xlim){
   stepVal["AGMS"] = 4/columns
   stepVal["FAGMS"] = 2
   stepVal["FastCount"] = 2 * columns / (columns-1)
-  nbins = ceiling(min(c(50, range / stepVal$FastCount)))
+  nbins = ceiling(min(c(50, range / stepVal$FAGMS)))
   byVal = lapply(stepVal, function(x){ceiling(range/nbins/x)*x})
   breaks = lapply(names(stepVal), function(type) { 
     if(any(df$SketchType==type)){
@@ -118,5 +118,51 @@ get_probability <- function(df, breaks, ...){
   result = result %>% group_by_(...) %>% mutate(Total = sum(Counts))
   result$Probability = result$Counts/result$Total
   subset(result, select=-Bin)
+}
+
+
+# Theoretic bounds
+get_chebyshev_bounds <- function(packets, columns, rows=1, percentile=0.99){
+  df.fastcount = data.frame(SketchType="FastCount", SketchedPackets=packets,
+                    SketchColumns = columns, SketchRows = rows,
+                    SE = sqrt(2 * (packets^2 - packets)/(columns-1)/rows))
+  df.agms = data.frame(SketchType="AGMS",  SketchedPackets=packets,
+                    SketchColumns = columns, SketchRows = rows,
+                    SE = sqrt(2 * (packets^2 - packets)/columns/rows))
+  df.fagms = data.frame(SketchType="FAGMS",  SketchedPackets=packets,
+                    SketchColumns = columns, SketchRows = rows,
+                    SE = sqrt(2 * (packets^2 - packets)/columns/rows))
+  df = bind_rows(df.fastcount, df.agms, df.fagms)
+  df$Percentile = sqrt(1/(1-percentile))*df$SE
+  df$Method = "Chebyshev's bounds"
+  return(df)
+}
+
+# Percentiles Goldberg
+get_goldberg_bounds <- function(packets, columns, percentile){
+  df = data.frame(SketchType="FAGMS", SketchedPackets=packets, 
+        SketchColumns=columns, SketchRows=1, SE=NA, 
+        Percentile=sqrt(24/columns*log(2/(1-percentile)))*packets,
+        Method="Goldberg's bounds")
+  return(df)
+}
+
+# Percentiles from PMF
+get_percentiles_pmf <- function(df.t, percentile, ...){
+  df = df.t %>% group_by_(...) %>% 
+    summarize(
+      SE = sqrt(sum(Error^2*Probability) - weighted.mean(Error, Probability)^2),
+      Percentile = get_error_percentile(Error, Probability, percentile))
+  df$Method = "Estimation"
+  return(df)
+}
+
+# Like quantile, but giving the probability of each value
+get_error_percentile <- function(error, probability, percentile){
+    support = abs(error)[order(abs(error))]
+    pmf = probability[order(abs(error))]
+    cmf = cumsum(pmf)
+    idx = cmf > percentile
+    return(support[idx][1])
 }
 

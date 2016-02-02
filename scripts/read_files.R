@@ -8,6 +8,7 @@ read_base <- function(filename){
   names(tmp)[1] <- "SketchedPackets"
   tmp$filename <- filename
   tmp$Error <- tmp$EstimatedPackets - tmp$SketchedPackets
+  tmp$Method = "Experimental"
   sizes = sort(unique(tmp$DigestSize))
   tmp$DigestF <- factor(tmp$DigestSize, levels=c("Estimation", sizes))
   return(tmp)
@@ -27,6 +28,7 @@ read_pmf <- function(type="*", packets="*", columns="*", rows="*",
                              averageFunction, sep = '_' ), ".csv"))
   df = ldply(filenames, read.csv)
   df$Error = df$EstimatedPackets - df$SketchedPackets
+  df$Method = "Estimation"
   if (all(is.na(breaks))) return(df)
   df = df %>% group_by(SketchType) %>% 
     mutate(Bin = findInterval(Error, breaks[[as.character(SketchType)[1]]]))
@@ -59,5 +61,19 @@ read_sampling <- function(filenames){
     levels(df$Method)[2] = "Theoric"
     df$Method = relevel(df$Method, ref="Theoric")
   }
+  return(df)
+}
+
+read_ratio <- function(filename){
+  df <- read.csv(filename)
+  df$DigestSize = ordered(df$DigestSize)
+  df$filename <- filename
+  df$DropEstimation = df$EstimatedDifference2 / pmax(df$EstimatedInput2, 1)
+  df$DropEstimation2 = df$EstimatedDifference2 / pmax(df$InputPackets, 1)
+  df$DroppedPackets = df$InputPackets - df$OutputPackets
+  df$DropReal = df$DroppedPackets / pmax(df$InputPackets, 1)
+  df$Error = df$DropEstimation - df$DropReal
+  df$Error2 = df$DropEstimation2 - df$DropReal
+  df$SketchSize = df$SketchRows*df$SketchColumns
   return(df)
 }
