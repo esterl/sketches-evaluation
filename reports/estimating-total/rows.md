@@ -81,9 +81,18 @@ Next, we study how the number of rows affects in the error deviation. As we can 
 
 ### Aspect ratio
 
-Finally, we study if there is a proportion of rows-packets that provides better results. As we can see in the figure below, for the AGMS sketch, there is no difference, because we are using the mean, and so the role of rows and columns is the same. For the Fast-AGMS, more rows provide a better result when the number of packets is low, as the effect of the +-1 pseudo-random function requires many packets to converge to the optimal solution, but as the number of packets is considerable, it does not matter anymore. Finally, for the FastCount sketch, for few packets, a square sketch is preferable and for many packets, we should have at least as many columns as rows. 
+Finally, we study if there is a proportion of rows-packets that provides better results. The first three figures below show each for a different percentile, its error for different aspect ratios. We can observe on the different figures the following:
+
+* For the AGMS sketch, as expected, there is no difference between rows and columns.
+* For the Fast-AGMS sketch, when there are little packets, a high number of columns implies that the results are not stable, this can be better understoond by checking the fourth figure, which shows the PMF of for some aspect ratios: when the number of columns is high, the results are more grouped around certain values, causing the difference between different percentiles to be really sensible to where such percentile falls (is it just to the right or the left of one of the error values?).
+* For the FastCount sketch we can see the same for the case of low packets and high number of columns. But additinally, we see that if the number of columns is low, the results tend to be worse in any case.
 
 ![](figures/aspect1.png)
+![](figures/aspect2.png)
+![](figures/aspect3.png)
+![](figures/aspect4.png)
+![](figures/aspect5.png)
+
 
 |          Parameter |             Value             |
 |-------------------:|:-----------------------------:|
@@ -96,6 +105,8 @@ Finally, we study if there is a proportion of rows-packets that provides better 
 |             _Pcap_ |         CAIDA-no dups         |
 | _Average function_ |              mean             |
 
+The results were later analyzed using a [Pearson's Chi-square test for equality of percentiles](http://www.ncbi.nlm.nih.gov/pmc/articles/PMC4535814/) and as expected, the FastCount is affected by the aspect ratio in any case; the AGMS in no case and the Fast-AGMS only when the number of packets is low.
+
 ### Conclusion
 
-We have seen that increasing the number of rows decreases the standard error and that using the mean is the best way of combining the results between different rows. Regarding the aspect ratio of the sketch, a reasonable choice that works for every sketch on every situation is to choose a square sketch, where the number of rows is more or less the same as the number of columns.
+We have seen that increasing the number of rows decreases the standard error and that using the mean is the best way of combining the results between different rows. Regarding the aspect ratio of the sketch, one must be careful specially for the FastCount sketch, for which a reasonable choice is choosing a square sketch. For the Fast-AGMS, when the number of packets is low, choosing a higher number of rows will smooth its PMF, easing the prediction of the percentile.

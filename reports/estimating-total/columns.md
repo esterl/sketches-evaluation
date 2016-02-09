@@ -83,7 +83,7 @@ But when we run the experiment with 32 rows instead, we found a surprising resul
 |    _Hash function_ |            default            |
 |      _Xi function_ |            default            |
 |             _Pcap_ |             CAIDA             |
-| _Average function_.|            median.............|
+| _Average function_.|            median             |
 
 We saw that there was a higher error than expected. After investigating a little bit, we discovered that there were some repeated packets on the pcap at some interval, (11 of them), causing it to over estimate the prediction by around 120 (11^2=121) in one of the 100 intervals:
 
