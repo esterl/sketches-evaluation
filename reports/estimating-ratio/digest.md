@@ -45,7 +45,7 @@ First we will consider what happens when we drop only a small proportion of pack
 
 ### Drop most of the packets
 
-In our second experiment, we drop half of the packets, so that both the number of incoming and dropped packets are overestimated. However, because of the [quadratic characteristic of bias](../estimate-total/digest.html), the result is again an underestimated proportion of dropped packets.
+In our second experiment, we drop half of the packets, so that both the number of incoming and dropped packets are overestimated. However, because of the [quadratic characteristic of bias](../estimating-total/digest.html), the result is again an underestimated proportion of dropped packets.
 
 ![](figures/digest2.png)
 
