@@ -260,12 +260,13 @@ plot_avgFunc <- function(filenames) {
 }
 
 
-plot_aspectRatio <- function(filenames) {
+plot_aspectRatio <- function(filenames, percentile) {
   df <- ldply(filenames, read_base)
   df$AspectRatio = df$SketchColumns / df$SketchRows
   df$SketchSize = df$SketchColumns * df$SketchRows
   percentiles.exp <- get_experimental_percentiles(df, "AspectRatio", 
-                          "SketchType", "SketchedPackets")
+                          "SketchType", "SketchedPackets", 
+                          percentile=percentile)
   percentiles.exp$Label = factor(paste(percentiles.exp$SketchedPackets, 
                                           "packets"), 
                                   levels = c("100 packets", "10000 packets"))
@@ -274,7 +275,7 @@ plot_aspectRatio <- function(filenames) {
   plt = ggplot(percentiles.exp, aes(x=AspectRatio, y=Percentile/SketchedPackets, 
                                     color=SketchType, linetype=SketchType)) + 
     geom_line() + scale_x_log10() + #scale_y_log10() + 
-    ylab('Relative error 99 percentile') + 
+    ylab(paste0("Error's ", percentile*100, "% percentile")) + 
     xlab('Aspect ratio (columns/rows)') + 
     scale_colour_manual(values=custom.colors(3)) + 
     guides(colour=guide, linetype=guide) +
@@ -283,6 +284,36 @@ plot_aspectRatio <- function(filenames) {
     theme(legend.justification=c(1,1), legend.position=c(1,1))
   return(plt)
 }
+
+plot_aspectRatio_pmf <- function(filenames) {
+  df <- ldply(filenames, read_base)
+  cut_points = test_percentiles(df, "AspectRatio", c(0.05, 0.25, 0.75, 0.95))
+  cuts = data.frame(SketchType = rep(c("AGMS", "FAGMS", "FastCount"), 
+                        sapply(cut_points, length)),
+                    Point = unlist(cut_points))
+  df = df[df$SketchColumns %in% c(8,32,128,1024),]
+  df$SketchColumns = ordered(df$SketchColumns)
+  guide <- guide_legend("Sketch columns")
+#  plt = ggplot(df, aes(x=Error, fill=SketchColumns)) +
+#    geom_histogram(position="dodge", bins=15) + 
+#    facet_grid(~SketchType) +
+#    ylab("Count") + xlab("Error") +
+#    scale_fill_manual(values=heat.colors(4)) + 
+#    guides(fill=guide) + 
+#    paper_theme +
+#    theme(legend.position="bottom")
+  plt = ggplot(data=df, aes(x=Error, color=SketchColumns, linetype=SketchColumns)) + 
+    geom_freqpoly(bins=100, aes(y=..density..*..width..)) + 
+    facet_grid(~SketchType) +
+    ylab("Probability") + xlab("Error") +
+    scale_colour_manual(values=custom.colors(4)) + 
+    guides(colour=guide, linetype=guide) + 
+    paper_theme +
+    #geom_vline(aes(xintercept=Point), data=cuts, color="lightgrey") +
+    theme(legend.position="bottom")
+  return(plt)
+}
+
 
 plot_rows <- function(filenames, percentile) {
   df <- ldply(filenames, read_base)

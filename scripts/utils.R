@@ -1,3 +1,5 @@
+require(tidyr)
+
 #' Computes the PMF of estimating a proportion using non fixed-size sample
 #'
 #' Returns a data.frame with the PMF of estimating the porportion of dropped 
@@ -91,9 +93,11 @@ get_breaks <- function(df, xlim){
   byVal = lapply(stepVal, function(x){ceiling(range/nbins/x)*x})
   breaks = lapply(names(stepVal), function(type) { 
     if(any(df$SketchType==type)){
-      seq(from=min(df$Error[df$SketchType==type]) - stepVal[[type]]/2,
+      c(min(xlim-stepVal[[type]]/2, min(df$Error[df$SketchType==type]) - 3*stepVal[[type]]/2), 
+        seq(from=min(df$Error[df$SketchType==type]) - stepVal[[type]]/2,
           to=max(df$Error[df$SketchType==type]) - stepVal[[type]]/2 + byVal[[type]],
-          by=byVal[[type]])
+          by=byVal[[type]]),
+        max(xlim+stepVal[[type]]/2, max(df$Error[df$SketchType==type]) + stepVal[[type]]/2 + byVal[[type]]))
     } else { numeric(0)}
     })
   names(breaks) = names(byVal)
@@ -166,3 +170,22 @@ get_error_percentile <- function(error, probability, percentile){
     return(support[idx][1])
 }
 
+test_percentiles <- function(df, variable, percentiles){
+  cut_points = list()
+  for (type in levels(df$SketchType)){
+    # Break consistently based on possible error values:
+    tmp = df[df$SketchType==type,]
+    error = sort(unique(tmp$Error[tmp$SketchRows==1]))
+    ecdf.vals = ecdf(tmp$Error)(error)
+    idx.perc = sapply(percentiles, function(x) max(which(ecdf.vals <= x)) )
+    bins = c(-Inf, (error[idx.perc] + error[idx.perc+1])/2, Inf)
+    cut_points[[type]] = bins
+    tmp$Bin = cut(tmp$Error, bins)
+    contingency = tmp %>% group_by_("SketchType", variable, "Bin") %>% 
+                    summarize(counts = n())
+    contingency = spread(contingency, Bin, counts, fill=0)
+    print.data.frame(contingency)
+    print(chisq.test(contingency[,-c(1,2)]))
+  }
+  return(cut_points)
+}

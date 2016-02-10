@@ -160,9 +160,22 @@ ggsave(file=paste0(figures_path, 'rows-all1.png'), plt,  width=12, height=12,
 
 # 3. Aspect ratio
 filenames <- Sys.glob('../results/total_aspect*.csv')
-plt = plot_aspectRatio(filenames)
+plt = plot_aspectRatio(filenames, 0.66)
 ggsave(file=paste0(figures_path, 'aspect1.png'), plt,  width=15, height=10, 
+       units='cm', dpi=150)
+plt = plot_aspectRatio(filenames, 0.90)
+ggsave(file=paste0(figures_path, 'aspect2.png'), plt,  width=15, height=10, 
+       units='cm', dpi=150)
+plt = plot_aspectRatio(filenames, 0.99)
+ggsave(file=paste0(figures_path, 'aspect3.png'), plt,  width=15, height=10, 
        units='cm', dpi=150)
 ggsave(file=paste0(figures_path, 'total_aspect.eps'), plt,  width=15, height=10, 
        units='cm')
-
+filenames <- Sys.glob('../results/total_aspect1.*.csv')
+plt = plot_aspectRatio_pmf(filenames)
+ggsave(file=paste0(figures_path, 'aspect4.png'), plt,  width=25, height=12, 
+       units='cm', dpi=150)
+filenames <- Sys.glob('../results/total_aspect2.*.csv')
+plt = plot_aspectRatio_pmf(filenames)
+ggsave(file=paste0(figures_path, 'aspect5.png'), plt,  width=25, height=12, 
+       units='cm', dpi=150)

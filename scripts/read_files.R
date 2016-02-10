@@ -7,10 +7,15 @@ read_base <- function(filename){
   tmp <- read.csv(filename, na.strings=c("NA","None"))
   names(tmp)[1] <- "SketchedPackets"
   tmp$filename <- filename
+  tmp$pcap = "CAIDA"
+  tmp$pcap[grepl("sagunt", tmp$filename)] = "qMp"
+  tmp$pcap[grepl("proxy", tmp$filename)] = "Proxy"
   tmp$Error <- tmp$EstimatedPackets - tmp$SketchedPackets
   tmp$Method = "Experimental"
   sizes = sort(unique(tmp$DigestSize))
   tmp$DigestF <- factor(tmp$DigestSize, levels=c("Estimation", sizes))
+  tmp$AspectRatio <- tmp$SketchColumns/tmp$SketchRows
+  tmp$SketchSize <- tmp$SketchColumns * tmp$SketchRows
   return(tmp)
 }
 
@@ -43,8 +48,13 @@ read_pmf <- function(type="*", packets="*", columns="*", rows="*",
 #' Returns a dataframe with all the information of the CVS files
 #' @param filename Names of the CVS files
 #' @return A dataframe
-read_sampling <- function(filenames){
-  df <- ldply(filenames, read.csv)
+
+read_sampling <- function(filename){
+  df <- read.csv(filename)
+  df$filename = filename
+  df$pcap = "CAIDA"
+  df$pcap[grepl("sagunt", df$filename)] = "qMp"
+  df$pcap[grepl("proxy", df$filename)] = "Proxy"
   if ("ProcessedPackets" %in% names(df)){
     df$Error = df$EstimatedPackets - df$ProcessedPackets
     df$RelativeError = df$Error/df$ProcessedPackets
@@ -57,6 +67,9 @@ read_sampling <- function(filenames){
     df$Error = df$EstimatedProbability - df$DropReal
     df$Method = "Experimental"
     df$Method = as.factor(df$Method)
+    df$Buffer = pmax(df$InputPackets, df$OutputPackets) * df$SamplingProbability
+    df$Overhead = df$Buffer*df$DigestSize/df$TimeInterval
+    df$Memory = df$Buffer*df$DigestSize/8
     # TODO name!
     levels(df$Method)[2] = "Theoric"
     df$Method = relevel(df$Method, ref="Theoric")
@@ -68,6 +81,9 @@ read_ratio <- function(filename){
   df <- read.csv(filename)
   df$DigestSize = ordered(df$DigestSize)
   df$filename <- filename
+  df$pcap = "CAIDA"
+  df$pcap[grepl("sagunt", df$filename)] = "qMp"
+  df$pcap[grepl("proxy", df$filename)] = "Proxy"
   df$DropEstimation = df$EstimatedDifference2 / pmax(df$EstimatedInput2, 1)
   df$DropEstimation2 = df$EstimatedDifference2 / pmax(df$InputPackets, 1)
   df$DroppedPackets = df$InputPackets - df$OutputPackets
