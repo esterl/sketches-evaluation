@@ -189,3 +189,25 @@ test_percentiles <- function(df, variable, percentiles){
   }
   return(cut_points)
 }
+
+compute_times <- function(df){
+    df$DigestHash = NA
+    df$DigestXi = NA
+    # AGMS sketch
+    index = df$sketchType == "AGMS"
+    df$DigestHash[index] = 0
+    df$DigestXi[index] = df$SketchUpdate[index]
+    # FastCount sketch
+    index = df$sketchType == "FastCount"
+    df$DigestHash[index] = df$SketchUpdate[index]
+    df$DigestXi[index] = 0
+    # FAGMS sketch, uses AGMS as base
+    index = df$sketchType == "FAGMS"
+    index.aux = df$sketchType == "AGMS"
+    cross.index = match(df$generator[index] , df$generator[index.aux])
+    df$DigestXi[index] = df$SketchUpdate[index.aux][cross.index] / 
+                            df$sketchColumns[index.aux][cross.index]
+    df$DigestHash[index] = df$SketchUpdate[index] - df$DigestXi[index]
+    return(df)
+}
+

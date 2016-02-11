@@ -2,7 +2,7 @@
 layout: serie
 exclude: true
 start: ../estimating-ratio
-previous: drop.html
+previous: packets.html
 next: rows.html
 title: Sketch columns
 ---

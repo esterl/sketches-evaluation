@@ -134,12 +134,12 @@ plot_avgFunc <- function(filenames) {
 }
 
 
-plot_aspectRatio <- function(filenames) {
+plot_aspectRatio <- function(filenames, percentile) {
   df <- ldply(filenames, read_ratio)
   df$AspectRatio = df$SketchColumns / df$SketchRows
   df$SketchSize = df$SketchColumns * df$SketchRows
   percentiles <- get_experimental_percentiles(df, "AspectRatio", 
-                          "SketchType", "InputPackets")
+                          "SketchType", "InputPackets", percentile=percentile)
   percentiles$Label = factor(paste(percentiles$InputPackets, 
                                           "packets"), 
                                   levels = c("100 packets", "10000 packets"))
@@ -148,7 +148,7 @@ plot_aspectRatio <- function(filenames) {
   plt = ggplot(percentiles, aes(x=AspectRatio, y=Percentile, 
                                     color=SketchType, linetype=SketchType)) + 
     geom_line() + scale_x_log10() + #scale_y_log10() + 
-    ylab('99% percentile') + 
+    ylab(paste0("Error's ", percentile*100, "% percentile")) + 
     xlab('Aspect ratio (columns/rows)') + 
     scale_colour_manual(values=custom.colors(3)) + 
     guides(colour=guide, linetype=guide) +
@@ -194,6 +194,7 @@ plot_interval <- function(filenames, percentile) {
                             Percentile = quantile(abs(Error), percentile),
                             bits = mean(OptimizedBits), 
                             SamplingProbability = min(1,bits/32/numPackets))
+  print(packets)
   packets$numPackets = round_any(packets$numPackets, 10^(floor(log10(packets$numPackets)-1)))
     # Log-log scale
   plt = ggplot(percentiles, aes(x=TimeInterval, y=Percentile)) + 

@@ -47,9 +47,11 @@ On the other hand, the effect of the number of rows is the same: the standard er
 
 ### Aspect ratio
 
-The same happens with the aspect ratio: the FastCount is the sketch most affected by the aspect ratio and a square sketch tends to give good results on any case.
+The same happens with the aspect ratio: the FastCount is the sketch most affected by the aspect ratio, it is recommended to have at least as many columns as rows. And again, when there aren't much packets the results for FastCount and Fast-AGMS depend on the specific value of the percentile for the case of little rows.
 
 ![](figures/aspect1.png)
+![](figures/aspect2.png)
+![](figures/aspect3.png)
 
 |          Parameter |             Value             |
 |-------------------:|:-----------------------------:|
