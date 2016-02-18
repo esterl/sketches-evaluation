@@ -61,6 +61,13 @@ plt = plot_overhead(filenames.sk, filenames.sampling, 0.90)
 ggsave(file=paste0(figures_path, "overhead6.png"), plt,  width=12, 
   height=12, units='cm', dpi=100)
 
+## Single row
+filenames.sk = Sys.glob("../results/ratio_memory-equinix2.*.csv")
+filenames.sampling = Sys.glob("../results/sampling_memory_equinix1.*.csv")
+plt = plot_overhead(filenames.sk, filenames.sampling, 0.99)
+ggsave(file=paste0(figures_path, "overhead_onerow.png"), plt,  width=12, 
+  height=12, units='cm', dpi=100)
+
 
 ### Overhead with time
 filenames = c(Sys.glob("../results/ratio_equinix2.*.csv"), 
@@ -75,6 +82,7 @@ ggsave(file=paste0(figures_path, "overhead_time.png"), plt,  width=25,
 plt = plot_interval(filenames, filenames.sampling, 0.99)
 ggsave(file=paste0(figures_path, "ratio_time.eps"), plt,  width=25, 
   height=12, units='cm')
+
 
 ### CPU
 filename = Sys.glob("../results/test_timing.csv")

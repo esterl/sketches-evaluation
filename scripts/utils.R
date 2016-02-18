@@ -211,3 +211,25 @@ compute_times <- function(df){
     return(df)
 }
 
+print_regression <-function(filenames){
+  df <- ldply(filenames, read_base)
+  percentiles = get_experimental_percentiles(df, "SketchType", "SketchedPackets", 
+                  "SketchColumns", "SketchRows", percentile=0.99)
+  # 4.1 Regression of SE
+  lm.AGMS = lm(data=percentiles, 
+                SE~I(SketchedPackets/sqrt(SketchRows*SketchColumns))-1, 
+                subset=percentiles$SketchType=="AGMS")
+  summary(lm.AGMS)
+  lm.FAGMS = lm(data=percentiles, 
+                SE~I(SketchedPackets/sqrt(SketchRows*SketchColumns))-1, 
+                subset=percentiles$SketchType=="FAGMS")
+  summary(lm.FAGMS)
+  lm.FastCount = lm(data=percentiles, 
+                SE~I(SketchedPackets/sqrt(SketchRows*SketchColumns))-1, 
+                subset=percentiles$SketchType=="FastCount")
+  summary(lm.FastCount)
+  lm.FastCount = lm(data=percentiles, 
+                SE~I(SketchedPackets/sqrt(SketchRows*(SketchColumns-1)))-1, 
+                subset=percentiles$SketchType=="FastCount")
+  summary(lm.FastCount)
+}

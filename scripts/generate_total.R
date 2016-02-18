@@ -145,7 +145,7 @@ filenames <- Sys.glob('../results/total_average3.*.csv')
 plt = plot_avgFunc(filenames)
 ggsave(file=paste0(figures_path, 'average2.png'), plt,  width=25, height=11.5, 
        units='cm', dpi=150)
-ggsave(file=paste0(figures_path, 'total_average.eps', plt, width=25, height=11.5, 
+ggsave(file=paste0(figures_path, 'total_average.eps'), plt, width=25, height=11.5, 
        units='cm')
 # 2. Rows
 filenames <- Sys.glob('../results/total_rows2.*.csv')
@@ -157,7 +157,6 @@ ggsave(file=paste0(figures_path, 'total_rows.eps'), plt, width=25, height=11.5,
 plt = plot_rows_together(filenames, 0.99)
 ggsave(file=paste0(figures_path, 'rows-all1.png'), plt,  width=12, height=12, 
        units='cm', dpi=100)
-
 # 3. Aspect ratio
 filenames <- Sys.glob('../results/total_aspect*.csv')
 plt = plot_aspectRatio(filenames, 0.66)
@@ -179,3 +178,10 @@ filenames <- Sys.glob('../results/total_aspect2.*.csv')
 plt = plot_aspectRatio_pmf(filenames)
 ggsave(file=paste0(figures_path, 'aspect5.png'), plt,  width=25, height=12, 
        units='cm', dpi=150)
+# 4. Regression
+filenames <- Sys.glob('../results/total_regression*.csv')
+print_regression(filenames)
+plt = plot_regression_coefficients(filenames)
+ggsave(file=paste0(figures_path, 'coefficients.png'), plt,  width=12, height=12, 
+       units='cm', dpi=100)
+

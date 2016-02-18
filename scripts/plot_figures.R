@@ -350,3 +350,106 @@ plot_hashfunc <- function(filenames,limits){
   return(plt)   
 }
 
+plot_packets <- function(filenames, percentile) {
+  df <- ldply(filenames, read_base)
+  packets = sort(unique(df$SketchedPackets))
+  columns = sort(unique(df$SketchColumns))
+  rows = sort(unique(df$SketchRows))
+  percentiles.exp =   get_experimental_percentiles(df, "SketchedPackets", 
+                        "SketchType", percentile=percentile)
+  percentiles.chev = get_chebyshev_bounds(packets, columns, rows, percentile)
+  df.t <- read_pmf(columns=columns, rows=rows, 
+                    averageFunction=df$AverageFunction[1])
+  percentiles.t = get_percentiles_pmf(df.t, percentile, "SketchedPackets", 
+                      "SketchType")
+  if ( any(rows != 1) ) {
+    percentiles = bind_rows(percentiles.exp, percentiles.chev, percentiles.t)
+  } else {
+    percentiles.sg = get_goldberg_bounds(packets, columns, percentile)
+    percentiles = bind_rows(percentiles.exp, percentiles.chev, percentiles.sg, 
+                        percentiles.t)
+  }
+  percentiles$Method = as.factor(percentiles$Method)
+  plt = ggplot(percentiles, aes(x=SketchedPackets, y=Percentile, 
+                                color=Method, linetype=Method)) + 
+    geom_line() + scale_x_log10() + scale_y_log10() +
+    ylab(paste0("Error's ", percentile*100, "% percentile")) + 
+    xlab('Number of Sketched packets') + 
+    scale_colour_manual(values=custom.colors(nlevels(percentiles$Method))) +
+    scale_linetype_manual(values=custom.linetype(nlevels(percentiles$Method))) +
+    paper_theme +
+    theme(legend.justification=c(1,0), legend.position=c(1,0)) +
+    facet_grid(~SketchType)
+  return(plt)
+}
+
+plot_packets_together <- function(filenames, percentile) {
+  df <- ldply(filenames, read_base)
+  percentiles =   get_experimental_percentiles(df, "SketchedPackets", 
+                        "SketchType", percentile=percentile)
+  plt = ggplot(percentiles, aes(x=SketchedPackets, y=Percentile, 
+                                color=SketchType, linetype=SketchType)) + 
+    geom_line() + scale_x_log10() + scale_y_log10() +
+    ylab(paste0("Error's ", percentile*100, "% percentile")) + 
+    xlab('Number of Sketched packets') + 
+    scale_colour_manual(values=custom.colors(nlevels(percentiles$SketchType))) +
+    scale_linetype_manual(values=custom.linetype(nlevels(percentiles$SketchType))) +
+    paper_theme +
+    theme(legend.justification=c(1,0), legend.position=c(1,0))
+  return(plt)
+}
+
+plot_columns <- function(filenames, percentile) {
+  df <- ldply(filenames, read_base)
+  packets = sort(unique(df$SketchedPackets))
+  columns = sort(unique(df$SketchColumns))
+  rows = sort(unique(df$SketchRows))
+  percentiles.exp =   get_experimental_percentiles(df, "SketchColumns", 
+                        "SketchType", percentile=percentile)
+  percentiles.chev = get_chebyshev_bounds(packets, columns, rows, percentile)
+  df.t <- read_pmf(packets=packets, rows=rows, 
+                    averageFunction=df$AverageFunction[1])
+  percentiles.t = get_percentiles_pmf(df.t, percentile, "SketchColumns", 
+                      "SketchType")
+  if ( any(rows != 1) ) {
+    percentiles = bind_rows(percentiles.exp, percentiles.chev, percentiles.t)
+    percentiles$Method = ordered(percentiles$Method, 
+      levels=c("Estimation", "Experimental", "Chebyshev's bounds"))
+  } else {
+    percentiles.sg = get_goldberg_bounds(packets, columns, percentile)
+    percentiles = bind_rows(percentiles.exp, percentiles.chev, percentiles.sg, 
+                        percentiles.t)
+    percentiles$Method = ordered(percentiles$Method, 
+      levels=c("Estimation", "Experimental", "Chebyshev's bounds", 
+                "Goldberg's bounds"))
+  }
+  percentiles$Method = as.factor(percentiles$Method)
+  plt = ggplot(percentiles, aes(x=SketchColumns, y=Percentile, 
+                                color=Method, linetype=Method)) + 
+    geom_line() + scale_x_log10() + scale_y_log10() +
+    ylab(paste0("Error's ", percentile*100, "% percentile")) + 
+    xlab('Sketch Columns') + 
+    scale_colour_manual(values=custom.colors(nlevels(percentiles$Method))) +
+    scale_linetype_manual(values=custom.linetype(nlevels(percentiles$Method))) +
+    paper_theme +
+    theme(legend.title=element_blank(), legend.position="bottom") +
+    facet_grid(~SketchType)
+  return(plt)
+}
+
+plot_columns_together <- function(filenames, percentile) {
+  df <- ldply(filenames, read_base)
+  percentiles =   get_experimental_percentiles(df, "SketchColumns", 
+                        "SketchType", percentile=percentile)
+  plt = ggplot(percentiles, aes(x=SketchColumns, y=Percentile, 
+                                color=SketchType, linetype=SketchType)) + 
+    geom_line() + scale_x_log10() + scale_y_log10() +
+    ylab(paste0("Error's ", percentile*100, "% percentile")) + 
+    xlab('Sketch Columns') + 
+    scale_colour_manual(values=custom.colors(nlevels(percentiles$SketchType))) +
+    scale_linetype_manual(values=custom.linetype(nlevels(percentiles$SketchType))) +
+    paper_theme +
+    theme(legend.justification=c(1,1), legend.position=c(1,1))
+  return(plt)
+}
+

@@ -107,6 +107,12 @@ Finally, we study if there is a proportion of rows-packets that provides better 
 
 The results were later analyzed using a [Pearson's Chi-square test for equality of percentiles](http://www.ncbi.nlm.nih.gov/pmc/articles/PMC4535814/) and as expected, the FastCount is affected by the aspect ratio in any case; the AGMS in no case and the Fast-AGMS only when the number of packets is low.
 
+### Regression
+
+To sum up, we considered the three main variables involved: the number of sketched packets, the number of columns and the number of rows and estimated the coefficients as a function of the standard deviation. We later have seen how precise those coefficients correspond with high accuracy to those of a Gaussian distribution ([code](../../scripts/estimate-total.R):
+
+![](figures/coefficients.png)
+
 ### Conclusion
 
-We have seen that increasing the number of rows decreases the standard error and that using the mean is the best way of combining the results between different rows. Regarding the aspect ratio of the sketch, one must be careful specially for the FastCount sketch, for which a reasonable choice is choosing a square sketch. For the Fast-AGMS, when the number of packets is low, choosing a higher number of rows will smooth its PMF, easing the prediction of the percentile.
+We have seen that increasing the number of rows decreases the standard error and that using the mean is the best way of combining the results between different rows. Regarding the aspect ratio of the sketch, one must be careful specially for the FastCount sketch, for which we need to have at least as many columns as rows to obtain better predictions. When the number of packets being predicted is relatively high (or we have more rows), i.e. the support of the PMF will have enough points, we can [approximate the PMF of the error as a Gaussian function](http://dsg.ac.upc.edu/esterl/sketches/AGMS) with mean 0 and deviation N/sqrt(size\*2) for the AGMS and FastAGMS sketch and N/sqrt((columns-1)\*rows*2) for the FastCount sketch. As a consequence, AGMS and FastAGMS have the same precission, but FastCount requires an additional column to be as precise as the other two sketches.
