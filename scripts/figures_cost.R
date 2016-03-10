@@ -182,7 +182,8 @@ plot_CPU2 <- function(filename){
                             SketchUpdate = mean(SketchUpdate),
                             timeDifference = mean(timeDifference))
     df.avg$SketchSize = df.avg$sketchColumns * df.avg$sketchRows
-    plt = ggplot(df.avg, aes(x=SketchSize, y=SketchUpdate*1000, colour=sketchType)) + 
+    plt = ggplot(df.avg, aes(x=SketchSize, y=SketchUpdate*1000, 
+                    colour=sketchType, linetype=sketchType)) + 
             geom_line() + 
             ylab("Duration (ms)") + xlab("Sketch size") +
             paper_theme + 
@@ -190,7 +191,8 @@ plot_CPU2 <- function(filename){
                     breaks=c(0.001, 0.01, 0.1,1)) + 
             scale_x_log10() +
             scale_color_manual(name="Sketch type", 
-                values=custom.colors(nlevels(df.avg$sketchType)))
+                values=custom.colors(nlevels(df.avg$sketchType))) +
+            scale_linetype_discrete(name="Sketch type")
     return(plt)
 }
 

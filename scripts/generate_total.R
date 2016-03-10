@@ -68,28 +68,28 @@ ggsave(file=paste0(figures_path, 'total_hash.eps'), plt,  width=15, height=10,
 ## Packets
 filenames <- Sys.glob('../results/total_packets1.*.csv')
 plt = plot_packets(filenames, 0.99)
-ggsave(file=paste0(figures_path, 'packets1.png'), plt,  width=25, height=10, 
+ggsave(file=paste0(figures_path, 'packets1.png'), plt,  width=25, height=11.5, 
        units='cm', dpi=150)
 ggsave(file=paste0(figures_path, 'total_packets.eps'), plt,  width=25, 
-        height=10, units='cm')
+        height=11.5, units='cm')
 plt = plot_packets(filenames, 0.95)
-ggsave(file=paste0(figures_path, 'packets2.png'), plt,  width=25, height=10, 
+ggsave(file=paste0(figures_path, 'packets2.png'), plt,  width=25, height=11.5, 
        units='cm', dpi=150)
 plt = plot_packets(filenames, 0.90)
-ggsave(file=paste0(figures_path, 'packets3.png'), plt,  width=25, height=10, 
+ggsave(file=paste0(figures_path, 'packets3.png'), plt,  width=25, height=11.5, 
        units='cm', dpi=150)
 plt = plot_packets_together(filenames, 0.99)
 ggsave(file=paste0(figures_path, 'packets-all1.png'), plt,  width=12, height=12, 
        units='cm', dpi=100)
 filenames <- Sys.glob('../results/total_packets2.*.csv')
 plt = plot_packets(filenames, 0.99)
-ggsave(file=paste0(figures_path, 'packets4.png'), plt,  width=25, height=10, 
+ggsave(file=paste0(figures_path, 'packets4.png'), plt,  width=25, height=11.5, 
        units='cm', dpi=150)
 plt = plot_packets(filenames, 0.95)
-ggsave(file=paste0(figures_path, 'packets5.png'), plt,  width=25, height=10, 
+ggsave(file=paste0(figures_path, 'packets5.png'), plt,  width=25, height=11.5, 
        units='cm', dpi=150)
 plt = plot_packets(filenames, 0.90)
-ggsave(file=paste0(figures_path, 'packets6.png'), plt,  width=25, height=10, 
+ggsave(file=paste0(figures_path, 'packets6.png'), plt,  width=25, height=11.5, 
        units='cm', dpi=150)
 plt = plot_packets_together(filenames, 0.99)
 ggsave(file=paste0(figures_path, 'packets-all2.png'), plt,  width=12, height=12, 

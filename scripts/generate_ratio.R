@@ -127,4 +127,6 @@ plt = plot_interval(filenames, 0.99)
 ggsave(file=paste0(figures_path, "interval3.png"), plt,  width=25, 
   height=12, units='cm', dpi=150)
 
-
+## Regression
+filenames = c(Sys.glob("../results/ratio_regression.5305974.*.csv"))
+df = ldply(filenames, read_ratio, T, .progress="text")

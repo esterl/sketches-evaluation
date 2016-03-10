@@ -218,18 +218,57 @@ print_regression <-function(filenames){
   # 4.1 Regression of SE
   lm.AGMS = lm(data=percentiles, 
                 SE~I(SketchedPackets/sqrt(SketchRows*SketchColumns))-1, 
+                #SE~I(sqrt(SketchedPackets^2 - SketchedPackets)/(SketchRows*SketchColumns))-1, 
                 subset=percentiles$SketchType=="AGMS")
-  summary(lm.AGMS)
+  print(summary(lm.AGMS))
   lm.FAGMS = lm(data=percentiles, 
                 SE~I(SketchedPackets/sqrt(SketchRows*SketchColumns))-1, 
                 subset=percentiles$SketchType=="FAGMS")
-  summary(lm.FAGMS)
+  print(summary(lm.FAGMS))
   lm.FastCount = lm(data=percentiles, 
                 SE~I(SketchedPackets/sqrt(SketchRows*SketchColumns))-1, 
                 subset=percentiles$SketchType=="FastCount")
-  summary(lm.FastCount)
+  print(summary(lm.FastCount))
   lm.FastCount = lm(data=percentiles, 
                 SE~I(SketchedPackets/sqrt(SketchRows*(SketchColumns-1)))-1, 
                 subset=percentiles$SketchType=="FastCount")
-  summary(lm.FastCount)
+  print(summary(lm.FastCount))
 }
+
+print_regression_ratio <-function(filenames){
+  df <- ldply(filenames, read_ratio)
+  percentiles = get_experimental_percentiles(df, "SketchType", "InputPackets", 
+                  "SketchColumns", "SketchRows", "DropProbability", 
+                  percentile=0.99)
+  # 4.1 Regression of SE
+  lm.AGMS = lm(data=percentiles, 
+    SE~I(DropProbability*
+            sqrt((1-DropProbability)/(SketchRows*SketchColumns)))-1, 
+    subset=percentiles$SketchType=="AGMS")
+  print(summary(lm.AGMS))
+  lm.FAGMS = lm(data=percentiles, 
+    SE~I(DropProbability*
+            sqrt((1-DropProbability)/(SketchRows*SketchColumns)))-1, 
+    subset=percentiles$SketchType=="FAGMS")
+  print(summary(lm.FAGMS))
+  lm.FastCount = lm(data=percentiles, 
+    SE~I(DropProbability*
+            sqrt((1-DropProbability)/(SketchRows*SketchColumns)))-1, 
+    subset=percentiles$SketchType=="FastCount")
+  print(summary(lm.FastCount))
+  lm.FastCount = lm(data=percentiles, 
+    SE~I(DropProbability*
+            sqrt((1-DropProbability)/(SketchRows*(SketchColumns-1))))-1, 
+    subset=percentiles$SketchType=="FastCount")
+  print(summary(lm.FastCount))
+}
+
+#extract legend
+#https://github.com/hadley/ggplot2/wiki/Share-a-legend-between-two-ggplot2-graphs
+g_legend<-function(a.gplot){
+  tmp <- ggplot_gtable(ggplot_build(a.gplot))
+  leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
+  legend <- tmp$grobs[[leg]]
+  return(legend)
+}
+  

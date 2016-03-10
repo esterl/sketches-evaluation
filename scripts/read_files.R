@@ -67,9 +67,11 @@ read_sampling <- function(filename){
     df$Error = df$EstimatedProbability - df$DropReal
     df$Method = "Experimental"
     df$Method = as.factor(df$Method)
-    df$Buffer = pmax(df$InputPackets, df$OutputPackets) * df$SamplingProbability
-    df$Overhead = df$Buffer*df$DigestSize/df$TimeInterval
-    df$Memory = df$Buffer*df$DigestSize/8
+    if ("TimeInterval" %in% names(df)){
+      df$Buffer = pmax(df$InputPackets, df$OutputPackets) * df$SamplingProbability
+      df$Overhead = df$Buffer*df$DigestSize/df$TimeInterval
+      df$Memory = df$Buffer*df$DigestSize/8
+    }
     # TODO name!
     levels(df$Method)[2] = "Theoric"
     df$Method = relevel(df$Method, ref="Theoric")

@@ -165,7 +165,7 @@ plot_packets <- function(filenames, percentile) {
     scale_colour_manual(values=custom.colors(num, T, ref=T)) +
     scale_linetype_manual(values=custom.linetype(num)) +
     paper_theme +
-    theme(legend.justification=c(1,0), legend.position=c(1,0)) +
+    theme(legend.title=element_blank(), legend.position="bottom") +
     facet_grid(~SketchType)
   return(plt)
 }
@@ -248,10 +248,10 @@ plot_avgFunc <- function(filenames) {
                             linetype=AverageFunction)) +
     geom_freqpoly(aes(y=..density..*..width..)) +
     ylab('Probability') + xlab('Error') + 
-    scale_colour_manual(name='Average function', values=custom.colors(3)) +
-    scale_linetype_manual(name='Average function', values=custom.linetype(3)) +
+    scale_colour_manual(values=custom.colors(3)) +
+    scale_linetype_manual(values=custom.linetype(3)) +
     paper_theme + 
-    theme(legend.justification=c(1,1), legend.position=c(1,1)) + 
+    theme(legend.title=element_blank(), legend.position="bottom") + 
     facet_grid(~SketchType)
   tmp.stats <- df %>% group_by(AverageFunction, SketchType) %>% 
                   summarise(mean=mean(Error), sd=sd(Error))

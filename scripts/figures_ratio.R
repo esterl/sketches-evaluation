@@ -211,3 +211,48 @@ plot_interval <- function(filenames, percentile) {
     return(plt)
 }
 
+plot_regression_coefficients <-function(filenames){
+  df <- ldply(filenames, read_ratio, little=F, .progress="text")
+  values = (66:99)/100
+  coefficients = data.frame(SketchType=factor(levels=levels(df$SketchType)), 
+                            Percentile=numeric(),
+                            Coefficient=numeric(), 
+                            R.squared=numeric())
+  for (value in values){
+    aux = get_experimental_percentiles(df, "SketchType", "InputPackets", 
+                  "SketchColumns", "SketchRows", "DropProbability",
+                  percentile=value)
+    for (type in levels(aux$SketchType)){
+      if(type=="FastCount"){
+        coefficient = lm(data=aux, 
+          Percentile~I(DropProbability*
+            sqrt((1-DropProbability)/(SketchRows*(SketchColumns-1))))-1, 
+          subset=percentiles$SketchType==type)$coefficients
+      } else {
+        regression = lm(data=aux, 
+          Percentile~I(DropProbability*
+            sqrt((1-DropProbability)/(SketchRows*SketchColumns)))-1, 
+          subset=percentiles$SketchType==type)
+      }
+      n = nrow(coefficients)+1
+      coefficients[n, 1] = type
+      coefficients[n, 2] = value
+      coefficients[n, 3] = regression$coefficients
+      coefficients[n, 4] = summary(regression)$r.squared
+    }
+  }
+  ## Regression as Gaussian:
+  for (type in levels(aux$SketchType)) {
+    lm.coefs = lm(data=coefficients, Coefficient~I(qnorm(1-(1-Percentile)/2))-1, 
+                  subset=coefficients$SketchType==type)
+    print(summary(lm.coefs))
+  }
+  plt = ggplot(coefficients, aes(x=Percentile, y=Coefficient, 
+                                color=SketchType, linetype=SketchType)) + 
+    geom_line() +
+    scale_colour_manual(values=custom.colors(3)) +
+    scale_linetype_manual(values=custom.linetype(3)) +
+    paper_theme +
+    theme(legend.justification=c(0,1), legend.position=c(0,1))
+  return(plt)
+}
